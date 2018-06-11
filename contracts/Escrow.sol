@@ -17,7 +17,7 @@ contract Escrow {
   constructor(address _buyer, address _seller) public { //creates the contract
     buyer = _buyer;
     seller = _seller;
-    escrow = msg.sender;
+    escrowOwner = msg.sender;
     start = now;
   }
 
@@ -47,8 +47,8 @@ contract Escrow {
   }
 
   function payout() private {
-    escrowOwner.transfer(this.balance.div(100));
-    balance = balance.mul(.99);
+    escrowOwner.transfer(balance.div(100));
+    balance = balance.mul(99).div(100);
     seller.transfer(balance);
     balance = 0;
   }
