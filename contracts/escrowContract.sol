@@ -4,6 +4,7 @@ pragma solidity ^0.4.23;
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract Escrow {
+  using SafeMath for uint;
 
   uint balance;
   address public buyer;
@@ -28,7 +29,9 @@ contract Escrow {
     }
     //nobody else can actuate chanvge by calling approve()
     if (buyerApproval = true && sellerApproval == true) {
-
+      payout();
+    } else if (buyerApproval && !sellerApproval && now > start + 30 days) {
+      selfdestruct(buyer);
     }
 
   }
@@ -44,8 +47,15 @@ contract Escrow {
   }
 
   function payout() private {
-    escrowOwner.transfer(this.balance/100)
+    escrowOwner.transfer(this.balance.div(100));
+    balance = balance.mul(.99);
+    seller.transfer(balance);
+    balance = 0;
   }
-  function kill() public {}
+  function kill() public constant {
+    if (msg.sender == escrowOwner) {
+      selfdestruct(buyer);
+    }
+  }
 
 }
